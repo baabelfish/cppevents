@@ -2,9 +2,6 @@
 
 #include <functional>
 #include <stack>
-#include <vector>
-#include <thread>
-#include <mutex>
 
 class Threads {
 public:

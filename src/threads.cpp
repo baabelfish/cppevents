@@ -1,5 +1,8 @@
 #include "threads.hpp"
-#include <iostream>
+
+#include <thread>
+#include <mutex>
+#include <vector>
 
 Threads::Threads(std::stack<std::function<void ()>> stack, size_t thread_amount):
     m_thread_amount(thread_amount == 0 ? 1 : thread_amount)

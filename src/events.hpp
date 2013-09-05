@@ -1,11 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include "threads.hpp"
 #include <functional>
 #include <unordered_map>
-#include <thread>
-#include <vector>
 #include <stack>
 
 
