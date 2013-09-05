@@ -2,34 +2,31 @@
 #include <unistd.h>
 #include "../src/events.hpp"
 
+void printWithSleep(int mseconds, const std::wstring& line, bool with_endl = false) {
+    usleep(mseconds);
+    if (with_endl) std::wcout << std::endl;
+    std::wcout << line;
+    std::wcout.flush();
+}
+
 int main() {
     // Create the event handler
     Events<std::wstring> events;
 
     // Add callbacks
     events.add(L"greet", [](void*){
-        sleep(1);
-        std::wcout << L"First ";
-        std::wcout.flush();
+        printWithSleep(1000000, L"First ");
     }).add(L"greet", [](void*) {
-        sleep(1);
-        std::wcout << L"Second ";
-        std::wcout.flush();
+        printWithSleep(1000000, L"First ");
     }).add(L"greet", [](void*) {
-        sleep(1);
-        std::wcout << L"Third ";
-        std::wcout.flush();
+        printWithSleep(1000000, L"First ");
     }).add(L"greet", [](void*) {
-        sleep(1);
-        std::wcout << L"Fourth ";
-        std::wcout.flush();
+        printWithSleep(1000000, L"First ");
     }).add(L"something", [](void*) {
-        std::wcout << std::endl << L"I'm something. ";
+        printWithSleep(1000000, L"I'm something. ", true);
     }).add(L"something", [](void* param) {
         if (param == nullptr) return;
-        usleep(100);
-        std::wstring* wstr = (std::wstring*)param;
-        std::wcout << *wstr << L".";
+        printWithSleep(0, *(std::wstring*)param + L".", true);
     });
 
     // Call all functions in "greet"-group using 2 threads
