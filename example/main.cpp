@@ -36,6 +36,7 @@ int main() {
     // Notice that the last callback is fails the condition.
     events.emit(L"something");
 
+    // Ugly
     std::wstring* wstr = new std::wstring(L"I'm a parameter");
     events.emit(L"something", (void*)wstr);
     delete wstr;
