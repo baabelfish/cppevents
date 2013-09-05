@@ -4,7 +4,7 @@
 #include <mutex>
 #include <vector>
 
-Threads::Threads(std::stack<std::function<void ()>> stack, size_t thread_amount):
+Threads::Threads(std::stack<std::function<void (void*)>> stack, size_t thread_amount):
     m_thread_amount(thread_amount == 0 ? 1 : thread_amount)
     , m_executions(stack) {
 }
@@ -12,7 +12,7 @@ Threads::Threads(std::stack<std::function<void ()>> stack, size_t thread_amount)
 Threads::~Threads() {
 }
 
-void Threads::execute() {
+void Threads::execute(void* parameter) {
     if (m_executions.empty()) return;
     std::vector<std::thread*> threads;
     std::mutex mt;
@@ -20,7 +20,7 @@ void Threads::execute() {
     for (size_t i = 0; i < m_thread_amount; ++i) {
         threads.push_back(new std::thread([&]() {
             while (true) {
-                std::function<void ()> element;
+                std::function<void (void*)> element;
                 bool got_it = false;
 
                 mt.lock();
@@ -35,7 +35,7 @@ void Threads::execute() {
                 mt.unlock();
 
                 if (got_it) {
-                    element();
+                    element(parameter);
                 }
             }
         }));

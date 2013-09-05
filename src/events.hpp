@@ -27,26 +27,28 @@ public:
      *
      * @param key Key of the signal.
      * @param threads Amount of threads to use in execution.
+     * @param parameter Optional parameter to the function.
      */
-    void emit(KeyType key, size_t threads) const {
+    void emit(KeyType key, size_t threads, void* parameter = nullptr) const {
         auto range = m_functions.equal_range(key);
-        std::stack<std::function<void ()>> stack;
+        std::stack<std::function<void (void*)>> stack;
         for (auto it = range.first; it != range.second; ++it) {
             stack.push(it->second);
         }
         Threads tthreads(stack, threads);
-        tthreads.execute();
+        tthreads.execute(parameter);
     }
 
     /**
      * @brief Runs key-functions in a single thread.
      *
      * @param key Key of the signal.
+     * @param parameter Optional parameter to the function.
      */
-    void emit(KeyType key) const {
+    void emit(KeyType key, void* parameter = nullptr) const {
         auto range = m_functions.equal_range(key);
         for (auto it = range.first; it != range.second; ++it) {
-            (it->second)();
+            (it->second)(parameter);
         }
     }
 
@@ -54,12 +56,12 @@ public:
      * @brief Adds a callback to a keycontainer.
      *
      * @param key Key of the event.
-     * @param func Function to run.
+     * @param func Function to run. Takes a void* parameter.
      *
      * @return Reference to this instance to be able to chain calls.
      */
-    inline Events& add(KeyType key, std::function<void ()> func) {
-        std::pair<KeyType, std::function<void ()>> mpair(key, func);
+    Events& add(KeyType key, std::function<void (void*)> func) {
+        std::pair<KeyType, std::function<void (void*)>> mpair(key, func);
         m_functions.insert(mpair);
         return *this;
     }
@@ -68,5 +70,5 @@ private:
     /**
      * @brief Hash table to hold the functions.
      */
-    std::unordered_multimap<KeyType, std::function<void ()>> m_functions;
+    std::unordered_multimap<KeyType, std::function<void (void*)>> m_functions;
 };

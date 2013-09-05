@@ -11,7 +11,7 @@ public:
      * @param stack A stack with all the functions that need to be run.
      * @param thread_amount Amount of threads to use. Defaults to 2.
      */
-    Threads(std::stack<std::function<void ()>> stack, size_t thread_amount = 2);
+    Threads(std::stack<std::function<void (void*)>> stack, size_t thread_amount = 2);
 
     /**
      * @brief Destroys the class.
@@ -22,7 +22,7 @@ public:
      * @brief Executes all functions that were created. This works only once
      * in the instances existance.
      */
-    void execute();
+    void execute(void* parameter);
 
 private:
     /**
@@ -33,5 +33,5 @@ private:
     /**
      * @brief Container for the functions to execute.
      */
-    std::stack<std::function<void ()>> m_executions;
+    std::stack<std::function<void (void*)>> m_executions;
 };
