@@ -10,6 +10,7 @@ Threads::~Threads() {
 }
 
 void Threads::execute() {
+    if (m_executions.empty()) return;
     std::vector<std::thread*> threads;
     std::mutex mt;
 
