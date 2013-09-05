@@ -56,7 +56,7 @@ public:
      * @param key Key of the event.
      * @param func Function to run.
      *
-     * @return
+     * @return Reference to this instance to be able to chain calls.
      */
     inline Events& add(KeyType key, std::function<void ()> func) {
         std::pair<KeyType, std::function<void ()>> mpair(key, func);
