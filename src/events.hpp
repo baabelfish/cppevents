@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <stack>
 
-template <class KeyType, class ParameterType>
+template <class KeyType>
 class Events {
 public:
     /**
@@ -25,6 +25,7 @@ public:
      * @param threads Amount of threads to use in execution.
      * @param parameter Optional parameter to the function.
      */
+    template <class ParameterType>
     void emit(KeyType key, size_t threads, ParameterType parameter) const;
 
     /**
@@ -33,6 +34,7 @@ public:
      * @param key Key of the signal.
      * @param parameter Optional parameter to the function.
      */
+    template <class ParameterType>
     void emit(KeyType key, ParameterType parameter) const;
 
     /**
@@ -43,42 +45,47 @@ public:
      *
      * @return Reference to this instance to be able to chain calls.
      */
+    template <class ParameterType>
     Events& add(KeyType key, std::function<void (ParameterType)> func);
 
 private:
-    /**
-     * @brief Hash table to hold the functions.
-     */
-    std::unordered_multimap<KeyType, std::function<void (ParameterType)>> m_functions;
+    template <class ParameterType>
+    static std::unordered_multimap<KeyType, std::function<void (ParameterType)>>& tcontainer() {
+        static std::unordered_multimap<KeyType, std::function<void (ParameterType)>> functions;
+        return functions;
+    }
 };
 
-template <class KeyType, class ParameterType>
-Events<KeyType, ParameterType>::Events():
-    m_functions() {
+template <class KeyType>
+Events<KeyType>::Events() {
 }
 
-template <class KeyType, class ParameterType>
-Events<KeyType, ParameterType>::~Events() {
+template <class KeyType>
+Events<KeyType>::~Events() {
 }
 
-template <class KeyType, class ParameterType>
-void Events<KeyType, ParameterType>::emit(KeyType key, ParameterType parameter) const {
-    auto range = m_functions.equal_range(key);
+template <class KeyType>
+template <class ParameterType>
+void Events<KeyType>::emit(KeyType key, ParameterType parameter) const {
+    auto range = tcontainer<ParameterType>().equal_range(key);
     for (auto it = range.first; it != range.second; ++it) {
         (it->second)(parameter);
     }
 }
 
-template <class KeyType, class ParameterType>
-Events<KeyType, ParameterType>& Events<KeyType, ParameterType>::add(KeyType key, std::function<void (ParameterType)> func) {
+template <class KeyType>
+template <class ParameterType>
+Events<KeyType>& Events<KeyType>::add(KeyType key, std::function<void (ParameterType)> func) {
+    static std::unordered_multimap<KeyType, std::function<void (ParameterType)>> functions;
     std::pair<KeyType, std::function<void (ParameterType)>> mpair(key, func);
-    m_functions.insert(mpair);
+    tcontainer<ParameterType>().insert(mpair);
     return *this;
 }
 
-template <class KeyType, class ParameterType>
-void Events<KeyType, ParameterType>::emit(KeyType key, size_t threads, ParameterType parameter) const {
-    auto range = m_functions.equal_range(key);
+template <class KeyType>
+template <class ParameterType>
+void Events<KeyType>::emit(KeyType key, size_t threads, ParameterType parameter) const {
+    auto range = tcontainer<ParameterType>().equal_range(key);
     std::stack<std::function<void (ParameterType)>> stack;
     for (auto it = range.first; it != range.second; ++it) {
         stack.push(it->second);
