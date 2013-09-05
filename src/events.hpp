@@ -11,15 +11,12 @@ public:
     /**
      * @brief Creates an event handler.
      */
-    Events():
-        m_functions() {
-    }
+    Events();
 
     /**
      * @brief Destroys the event.
      */
-    virtual ~Events() {
-    }
+    virtual ~Events();
 
     /**
      * @brief Emits a signal identified by the key.
@@ -28,15 +25,7 @@ public:
      * @param threads Amount of threads to use in execution.
      * @param parameter Optional parameter to the function.
      */
-    void emit(KeyType key, size_t threads, ParameterType parameter) const {
-        auto range = m_functions.equal_range(key);
-        std::stack<std::function<void (ParameterType)>> stack;
-        for (auto it = range.first; it != range.second; ++it) {
-            stack.push(it->second);
-        }
-        Threads<ParameterType> tthreads(stack, threads);
-        tthreads.execute(parameter);
-    }
+    void emit(KeyType key, size_t threads, ParameterType parameter) const;
 
     /**
      * @brief Runs key-functions in a single thread.
@@ -44,12 +33,7 @@ public:
      * @param key Key of the signal.
      * @param parameter Optional parameter to the function.
      */
-    void emit(KeyType key, ParameterType parameter) const {
-        auto range = m_functions.equal_range(key);
-        for (auto it = range.first; it != range.second; ++it) {
-            (it->second)(parameter);
-        }
-    }
+    void emit(KeyType key, ParameterType parameter) const;
 
     /**
      * @brief Adds a callback to a keycontainer.
@@ -59,11 +43,7 @@ public:
      *
      * @return Reference to this instance to be able to chain calls.
      */
-    Events& add(KeyType key, std::function<void (ParameterType)> func) {
-        std::pair<KeyType, std::function<void (ParameterType)>> mpair(key, func);
-        m_functions.insert(mpair);
-        return *this;
-    }
+    Events& add(KeyType key, std::function<void (ParameterType)> func);
 
 private:
     /**
@@ -71,3 +51,38 @@ private:
      */
     std::unordered_multimap<KeyType, std::function<void (ParameterType)>> m_functions;
 };
+
+template <class KeyType, class ParameterType>
+Events<KeyType, ParameterType>::Events():
+    m_functions() {
+}
+
+template <class KeyType, class ParameterType>
+Events<KeyType, ParameterType>::~Events() {
+}
+
+template <class KeyType, class ParameterType>
+void Events<KeyType, ParameterType>::emit(KeyType key, ParameterType parameter) const {
+    auto range = m_functions.equal_range(key);
+    for (auto it = range.first; it != range.second; ++it) {
+        (it->second)(parameter);
+    }
+}
+
+template <class KeyType, class ParameterType>
+Events<KeyType, ParameterType>& Events<KeyType, ParameterType>::add(KeyType key, std::function<void (ParameterType)> func) {
+    std::pair<KeyType, std::function<void (ParameterType)>> mpair(key, func);
+    m_functions.insert(mpair);
+    return *this;
+}
+
+template <class KeyType, class ParameterType>
+void Events<KeyType, ParameterType>::emit(KeyType key, size_t threads, ParameterType parameter) const {
+    auto range = m_functions.equal_range(key);
+    std::stack<std::function<void (ParameterType)>> stack;
+    for (auto it = range.first; it != range.second; ++it) {
+        stack.push(it->second);
+    }
+    Threads<ParameterType> tthreads(stack, threads);
+    tthreads.execute(parameter);
+}
