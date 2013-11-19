@@ -1,13 +1,12 @@
 EXE=main
 CCFLAGS=-O2 -std=c++11 -I./include -pthread
-CC=clang++
+CC=g++
 DEPXX=g++ -MM
 DEPFILE=makefile.dep
 
 # Object files
 #SRC=$(wildcard src/*.cpp)
-SRC=$(shell find ../src -type f -name '*.cpp')\
-	main.cpp
+SRC=main.cpp
 
 OBJS=${SRC:.cpp=.o}
 #OBJS=$(SRC:src/%.cpp=obj/%.o)
